@@ -32,5 +32,14 @@ for (let y = 0; y < H; y += DY) {
 	line.setAttribute('line', { start: xz[0] + " " + y + " " + xz[1], end: xz[2] + " " + y + " " + xz[3] })
 	scene.appendChild(line)
 }
+
+document.body.onclick = function() {
+	if (DeviceMotionEvent && DeviceMotionEvent.requestPermission && typeof DeviceMotionEvent.requestPermission === 'function') {
+		DeviceMotionEvent.requestPermission()
+	}
+	if (DeviceOrientationEvent && DeviceOrientationEvent.requestPermission && typeof DeviceOrientationEvent.requestPermission === 'function') {
+		DeviceOrientationEvent.requestPermission();
+	}
+}
 </script>
 </body></html>
