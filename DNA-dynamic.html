@@ -5,6 +5,8 @@
 <a-scene id="scene"><a-sky color="#000000"></a-sky></a-scene>
 <script>"use strict"
 
+const objs = []
+
 const H = 16.5
 const R = 1.5
 const DTH = 2 * Math.PI / 32
@@ -26,12 +28,40 @@ for (let y = 0; y < H; y += DY) {
 		scene.appendChild(obj)
 		xz[i * 2] = x
 		xz[i * 2 + 1] = z
+		objs.push(obj)
 	}
 	th += DTH
 	const line = document.createElement('a-entity')
 	line.setAttribute('line', { start: xz[0] + " " + y + " " + xz[1], end: xz[2] + " " + y + " " + xz[3] })
 	scene.appendChild(line)
+	objs.push(line)
 }
+
+const DT = 2 * Math.PI / 72 / 20
+let t = 0
+const move = function() {
+	th = 0
+	let y = 0
+	for (let i = 0; i < objs.length / 3; i++) {
+		const ball1 = objs[i * 3]
+		const ball2 = objs[i * 3 + 1]
+		const line = objs[i * 3 + 2]
+		const nth = th + i * Math.PI + DT * t
+		const x1 = OX + Math.cos(nth) * R
+		const z1 = OY + Math.sin(nth) * R
+		ball1.setAttribute('position', x1 + " " + y + " " + z1)
+		const x2 = OX + Math.cos(nth + Math.PI) * R
+		const z2 = OY + Math.sin(nth + Math.PI) * R
+		ball2.setAttribute('position', x2 + " " + y + " " + z2)
+		line.setAttribute('line', { start: x1 + " " + y + " " + z1, end: x2 + " " + y + " " + z2 })
+
+		y += DY
+		th += DTH
+	}
+	t++
+	requestAnimationFrame(move)
+}
+move()
 
 document.body.onclick = function() {
 	if (DeviceMotionEvent && DeviceMotionEvent.requestPermission && typeof DeviceMotionEvent.requestPermission === 'function') {
