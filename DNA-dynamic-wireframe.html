@@ -1,0 +1,98 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"/>
+<title>DNA - molecularvr</title>
+<script src="https://aframe.io/releases/0.9.2/aframe.min.js"></script>
+</head><body>
+<a-scene id="scene">
+	<a-sky color="#000000"></a-sky>
+</a-scene>
+<script>"use strict"
+
+// ground
+for (let i = -20; i <= 20; i++) {
+	const line = document.createElement('a-entity')
+	line.setAttribute('line', {
+		start: -20 + " " + 0 + " " + i,
+		end: 20 + " " + 0 + " " + i,
+		color: 'red'
+	})
+	scene.appendChild(line)
+}
+
+// DNA
+
+const objs = []
+
+const H = 16.5
+const R = 1.5
+const DTH = 2 * Math.PI / 32
+const DY = H / 120
+const OX = 0
+const OY = -2
+const BR = .1
+
+let th = 0
+let xz = [ 0, 0, 0, 0 ]
+for (let y = 0; y < H; y += DY) {
+	for (let i = 0; i < 2; i++) {
+		const nth = th + i * Math.PI
+		const x = OX + Math.cos(nth) * R
+		const z = OY + Math.sin(nth) * R
+		const obj = document.createElement('a-sphere')
+		obj.setAttribute('scale', BR + " " + BR + " " + BR)
+		obj.setAttribute('position', x + " " + y + " " + z)
+		obj.setAttribute('wireframe', 'true')
+		obj.setAttribute('segments-height', 7)
+		obj.setAttribute('segments-width', 7)
+		obj.setAttribute('color', 'red')
+		scene.appendChild(obj)
+		xz[i * 2] = x
+		xz[i * 2 + 1] = z
+		objs.push(obj)
+	}
+	th += DTH
+	const line = document.createElement('a-entity')
+	line.setAttribute('line', {
+		start: xz[0] + " " + y + " " + xz[1],
+		end: xz[2] + " " + y + " " + xz[3],
+		color: 'red'
+	})
+	scene.appendChild(line)
+	objs.push(line)
+}
+
+const DT = 2 * Math.PI / 72 / 100
+let t = 0
+const move = function() {
+	th = 0
+	let y = 0
+	for (let i = 0; i < objs.length / 3; i++) {
+		const ball1 = objs[i * 3]
+		const ball2 = objs[i * 3 + 1]
+		const line = objs[i * 3 + 2]
+		const nth = th + i * Math.PI + DT * t
+		const x1 = OX + Math.cos(nth) * R
+		const z1 = OY + Math.sin(nth) * R
+		ball1.setAttribute('position', x1 + " " + y + " " + z1)
+		const x2 = OX + Math.cos(nth + Math.PI) * R
+		const z2 = OY + Math.sin(nth + Math.PI) * R
+		ball2.setAttribute('position', x2 + " " + y + " " + z2)
+		line.setAttribute('line', { start: x1 + " " + y + " " + z1, end: x2 + " " + y + " " + z2 })
+
+		y += DY
+		th += DTH
+	}
+	t++
+	requestAnimationFrame(move)
+}
+move()
+
+document.body.onclick = function() {
+	if (DeviceMotionEvent && DeviceMotionEvent.requestPermission && typeof DeviceMotionEvent.requestPermission === 'function') {
+		DeviceMotionEvent.requestPermission()
+	}
+	if (DeviceOrientationEvent && DeviceOrientationEvent.requestPermission && typeof DeviceOrientationEvent.requestPermission === 'function') {
+		DeviceOrientationEvent.requestPermission()
+	}
+}
+</script>
+</body></html>
